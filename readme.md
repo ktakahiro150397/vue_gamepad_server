@@ -18,6 +18,7 @@
 - [ ] API動作確認ごと
     - [ ] `TaskCompletionSource<T>`の動作確認
         - パッドボタン押下のイベントを受けとり、そのハンドラの中でデータを突っ込んで送信するイメージ？
+        - https://medium.com/the-pragmatic-tech-review/asynchronous-programming-in-net-understanding-taskcompletionsource-599c6fe47537
 - [ ] 送信スキーマ設計
     - フロントで必要な項目のみ含めて送信する
     - ボタン押下はGamepad APIの形式に変換して送信するとフロントで楽ちん
