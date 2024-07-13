@@ -1,0 +1,6 @@
+@vue_gamepad_server_HostAddress = http://localhost:5287
+
+GET {{vue_gamepad_server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

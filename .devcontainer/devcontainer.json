@@ -1,0 +1,44 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/dotnet
+{
+	"name": "C# (.NET)",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"workbench.colorCustomizations": {
+					"titleBar.activeBackground": "#4493f8",
+					"titleBar.activeForeground": "#ffffff",
+					"activityBar.background": "#4493f8",
+					"activityBar.foreground": "#ffffff"
+				}
+			},
+			"extensions": [
+				"ms-dotnettools.csdevkit"
+			]
+		}
+	},
+	"postStartCommand": "dotnet dev-certs https;sudo -E dotnet dev-certs https -ep /usr/local/share/ca-certificates/aspnet/https.crt --format PEM;sudo update-ca-certificates;"
+	// Trust dev-certs
+	// https://learn.microsoft.com/ja-jp/aspnet/core/security/enforcing-ssl?view=aspnetcore-8.0&tabs=visual-studio%2Clinux-ubuntu#ssl-linux
+	// dotnet dev-certs https
+	// sudo -E dotnet dev-certs https -ep /usr/local/share/ca-certificates/aspnet/https.crt --format PEM
+	// 
+	//
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [5000, 5001],
+	// "portsAttributes": {
+	//		"5001": {
+	//			"protocol": "https"
+	//		}
+	// }
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "dotnet restore",
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
