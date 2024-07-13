@@ -1,9 +1,14 @@
+using System.Text.Json;
+using Core.ItemService;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<ItemService>();
 
 var app = builder.Build();
 
@@ -35,6 +40,26 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+app.MapGet("/GetItemStreamTest", async (HttpContext context, ItemService service, CancellationToken ct) =>
+{
+    context.Response.Headers.Append("Content-Type", "text/event-stream");
+
+    while (!ct.IsCancellationRequested)
+    {
+        // 送信するアイテムを待機
+        var item = await service.WaitForNewItem();
+
+        // 送信データを書き込み
+        await context.Response.WriteAsync($"data: ");
+        await JsonSerializer.SerializeAsync(context.Response.Body, item);
+        await context.Response.WriteAsync($"\n\n");
+        await context.Response.Body.FlushAsync();
+
+        service.Reset();
+    }
+
+}).WithName("GetItemStreamTest").WithOpenApi();
 
 app.Run();
 
