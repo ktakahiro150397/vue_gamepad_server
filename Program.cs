@@ -15,7 +15,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<ItemService>();
-builder.Services.AddSingleton<TestPadInputService>();
 
 var app = builder.Build();
 
@@ -48,27 +47,7 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapGet("/GetItemStreamTest", async (HttpContext context, TestPadInputService service, CancellationToken ct) =>
-{
-    context.Response.Headers.Append("Content-Type", "text/event-stream");
-
-    while (!ct.IsCancellationRequested)
-    {
-        // 送信するアイテムを待機
-        var item = await service.WaitForPadInput();
-
-        // 送信データを書き込み
-        await context.Response.WriteAsync($"data: ");
-        await JsonSerializer.SerializeAsync(context.Response.Body, item);
-        await context.Response.WriteAsync($"\n\n");
-        await context.Response.Body.FlushAsync();
-
-        service.TaskReset();
-    }
-
-}).WithName("GetItemStreamTest").WithOpenApi();
-
-app.MapGet("/GetInputStream", async (int joyId, HttpContext context, TestPadInputService service, CancellationToken ct) =>
+app.MapGet("/GetInputStream", async (int joyId, HttpContext context, CancellationToken ct) =>
 {
     GamepadInput gamepadInput = new GamepadInput();
 

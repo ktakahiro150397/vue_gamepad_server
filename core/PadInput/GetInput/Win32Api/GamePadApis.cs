@@ -32,17 +32,6 @@ namespace PadInput.Win32Api
         [DllImport("winmm.dll")]
         public static extern int joyGetPosEx(int uJoyID, ref JOYINFOEX pji);
 
-
-        //// hwnd  ... Handle to the window to receive the joystick messages.
-        //// uJoyID ... Identifier of the joystick to be captured. Valid values for uJoyID range from zero (JOYSTICKID1) to 15.
-        //// uPeriod ... Polling frequency, in milliseconds.
-        //// fChanged ... Change position flag. Specify TRUE for this parameter to send messages only when the position changes by a value greater than the joystick movement threshold. Otherwise, messages are sent at the polling frequency specified in uPeriod.
-        //[DllImport("winmm.dll")]
-        //public static extern int joySetCapture(IntPtr hwnd, int uJoyID, int uPeriod, int fChanged);
-
-
-        //[DllImport("winmm.dll")]
-        //public static extern int joyReleaseCapture(int uJoyID);
     }
 
     [StructLayout(LayoutKind.Sequential)]
