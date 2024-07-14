@@ -10,10 +10,15 @@ namespace Core.Response
     {
         public int joyId { get; set; }
 
+        public string device_id { get; set; }
+
+
         public string device_name { get; set; }
+
 
         public GetDevicesResponse()
         {
+            device_id = "";
             device_name = "";
         }
 

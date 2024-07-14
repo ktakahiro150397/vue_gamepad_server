@@ -104,7 +104,8 @@ app.MapGet("/GetDevices", async (HttpContext context) =>
             var device = new GetDevicesResponse
             {
                 joyId = i,
-                device_name = caps.szPname
+                device_name = caps.szPname,
+                device_id = $"{caps.wMid}-{caps.wPid}"
             };
             ret.Add(device);
         }
