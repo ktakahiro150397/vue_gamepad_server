@@ -24,6 +24,17 @@
         - パッドボタン押下のイベントを受けとり、そのハンドラの中でデータを突っ込んで送信するイメージ？
         - https://medium.com/the-pragmatic-tech-review/asynchronous-programming-in-net-understanding-taskcompletionsource-599c6fe47537
         - これは不要でした。
-- [ ] 送信スキーマ設計
+- [x] 送信スキーマ設計
     - フロントで必要な項目のみ含めて送信する
     - ボタン押下はGamepad APIの形式に変換して送信するとフロントで楽ちん
+
+
+# 送信データスキーマ
+
+`/GetInputStream`でフロント側に送る送信データのスキーマ。
+
+|項目名|型|値|
+|--|--|--|
+|button_state|[bool,bool...]|ボタン1-16までの押下ステータス。ボタンが押下されている場合、`true`。押下されていない場合、`false`。値のインデックスはGamepad APIのインデックスと対応している。|
+|direction_state|int|方向キーの入力方向押下ステータス。テンキー表記に従って、整数で返却する。(4:左・6:右・5:ニュートラル)|
+|time_stamp|int|ボタン入力を検知した時点のエポック秒。|
