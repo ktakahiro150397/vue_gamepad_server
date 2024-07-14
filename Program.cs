@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Core.ItemService;
 using Core.PadInput;
+using Core.Response;
 using PadInput.GamePadInput;
 using PadInput.Win32Api;
 
@@ -79,15 +80,18 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, TestPadInpu
 
         gamepadInput.GetPadInput(joyId);
 
-        // TODO : dwPosは角度に100を乗じた数で、その角度で方向キー入力方向が検知できる
-        // 8 -> 0 / 6 -> 9000 / 2 -> 18000 / 4 -> 27000
-        // 十字キー前提の場合、それぞれの値と一体するかどうかを確認すればよさげ
-
         if (((IGamePadInput)gamepadInput).IsInputChangeFromPreviousFrame)
         {
+            // 送信データを現在の入力状態から作成
+            var testResponse = new GetInputStreamResponse();
+
+            testResponse.SetDirectionState(gamepadInput.joyInfo.dwPOV);
+            testResponse.SetButtonState(gamepadInput.joyInfo.dwButtons);
+            testResponse.time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
             // 送信データを書き込み
             await context.Response.WriteAsync($"data: ");
-            await JsonSerializer.SerializeAsync(context.Response.Body, gamepadInput.joyInfo);
+            await JsonSerializer.SerializeAsync(context.Response.Body, testResponse);
             await context.Response.WriteAsync($"\n\n");
             await context.Response.Body.FlushAsync();
         }

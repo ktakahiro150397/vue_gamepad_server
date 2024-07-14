@@ -40,15 +40,15 @@ namespace PadInput.GamePadInput
     /// </summary>
     public enum GamePadPOVDirection
     {
-        Neutral,
-        Up,
-        Down,
-        Left,
-        Right,
-        UpRight,
-        UpLeft,
-        DownRight,
-        DownLeft,
+        DownLeft = 1,
+        Down = 2,
+        DownRight = 3,
+        Left = 4,
+        Neutral = 5,
+        Right = 6,
+        UpLeft = 7,
+        Up = 8,
+        UpRight = 9,
     }
 
 }
