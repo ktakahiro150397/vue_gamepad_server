@@ -91,12 +91,6 @@ namespace PadInput.Win32Api
 
         public static bool operator ==(JOYINFOEX left, JOYINFOEX right)
         {
-            if (System.Object.Equals(left, right))
-            {
-                //オペランドが同一の参照である場合はtrue。
-                return true;
-            }
-
             //すべての項目の値が一致する場合true。
             if (left.dwSize == right.dwSize &&
                 left.dwFlags == right.dwFlags &&
