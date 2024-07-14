@@ -1,6 +1,10 @@
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Core.ItemService;
 using Core.PadInput;
+using PadInput.GamePadInput;
+using PadInput.Win32Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +66,34 @@ app.MapGet("/GetItemStreamTest", async (HttpContext context, TestPadInputService
     }
 
 }).WithName("GetItemStreamTest").WithOpenApi();
+
+app.MapGet("/GetInputStream", async (int joyId, HttpContext context, TestPadInputService service, CancellationToken ct) =>
+{
+    GamepadInput gamepadInput = new GamepadInput();
+
+    context.Response.Headers.Append("Content-Type", "text/event-stream");
+    while (!ct.IsCancellationRequested)
+    {
+        // 60Hzでゲームパッドの入力チェックを行う
+        await Task.Delay(1000 / 60);
+
+        gamepadInput.GetPadInput(joyId);
+
+        // TODO : dwPosは角度に100を乗じた数で、その角度で方向キー入力方向が検知できる
+        // 8 -> 0 / 6 -> 9000 / 2 -> 18000 / 4 -> 27000
+        // 十字キー前提の場合、それぞれの値と一体するかどうかを確認すればよさげ
+
+        if (((IGamePadInput)gamepadInput).IsInputChangeFromPreviousFrame)
+        {
+            // 送信データを書き込み
+            await context.Response.WriteAsync($"data: ");
+            await JsonSerializer.SerializeAsync(context.Response.Body, gamepadInput.joyInfo);
+            await context.Response.WriteAsync($"\n\n");
+            await context.Response.Body.FlushAsync();
+        }
+
+    }
+}).WithName("GetInputStream").WithOpenApi();
 
 app.Run();
 
