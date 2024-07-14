@@ -90,14 +90,11 @@ namespace PadInput.Win32Api
 
         public static bool operator ==(JOYINFOEX left, JOYINFOEX right)
         {
-            if (System.Object.ReferenceEquals(left, right))
+            if (System.Object.Equals(left, right))
             {
                 //オペランドが同一の参照である場合はtrue。
                 return true;
             }
-
-            //いずれか一方がnullならfalse。
-            if (left == null || right == null) { return false; }
 
             //すべての項目の値が一致する場合true。
             if (left.dwSize == right.dwSize &&
@@ -127,16 +124,16 @@ namespace PadInput.Win32Api
             return !(left == right);
         }
 
-        public override bool Equals(object obj)
+        public override readonly bool Equals(object? obj)
         {
             if (obj == null)
             {
                 return false;
             }
 
-            if (obj is JOYINFOEX)
+            if (obj is JOYINFOEX jOYINFOEX)
             {
-                return this == (JOYINFOEX)obj;
+                return this == jOYINFOEX;
             }
 
             return false;
