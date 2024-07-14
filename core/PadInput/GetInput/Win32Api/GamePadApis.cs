@@ -32,6 +32,18 @@ namespace PadInput.Win32Api
         [DllImport("winmm.dll")]
         public static extern int joyGetPosEx(int uJoyID, ref JOYINFOEX pji);
 
+        /// <summary>
+        /// Queries a joystick to determine its capabilities.
+        /// https://learn.microsoft.com/en-us/windows/win32/api/joystickapi/nf-joystickapi-joyGetDevCaps
+        /// </summary>
+        /// <param name="uJoyID"></param>
+        /// <param name="pjc"></param>
+        /// <param name="cbjc"></param>
+        /// <returns></returns>
+        [DllImport("winmm.dll", CharSet = CharSet.Auto)]
+        public static extern uint joyGetDevCaps(int uJoyID, ref JOYCAPS pjc, int cbjc);
+
+
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -136,6 +148,40 @@ namespace PadInput.Win32Api
 
 
     }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    public struct JOYCAPS
+    {
+        public ushort wMid;
+        public ushort wPid;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string szPname;
+        public uint wXmin;
+        public uint wXmax;
+        public uint wYmin;
+        public uint wYmax;
+        public uint wZmin;
+        public uint wZmax;
+        public uint wNumButtons;
+        public uint wPeriodMin;
+        public uint wPeriodMax;
+        public uint wRmin;
+        public uint wRmax;
+        public uint wUmin;
+        public uint wUmax;
+        public uint wVmin;
+        public uint wVmax;
+        public uint wCaps;
+        public uint wMaxAxes;
+        public uint wNumAxes;
+        public uint wMaxButtons;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string szRegKey;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] // MAX_JOYSTICKOEMVXDNAME is typically 260
+        public string szOEMVxD;
+    }
+
+
 
     /// <summary>
     /// JoyStickIDの定数郡。

@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Core.ItemService;
@@ -77,6 +78,31 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
 
     }
 }).WithName("GetInputStream").WithOpenApi();
+
+app.MapGet("/GetDevices", async (HttpContext context) =>
+{
+
+    var ret = new List<GetDevicesResponse>();
+
+    var maxDeviceCount = NativeMethods.joyGetNumDevs();
+    for (int i = 0; i < maxDeviceCount; i++)
+    {
+        JOYCAPS caps = new JOYCAPS();
+        var info = NativeMethods.joyGetDevCaps(i, ref caps, Marshal.SizeOf<JOYCAPS>());
+        if (info == JoyGetPosExReturnValue.JOYERR_NOERROR)
+        {
+            var device = new GetDevicesResponse
+            {
+                joyId = i,
+                device_name = caps.szPname
+            };
+            ret.Add(device);
+        }
+    }
+
+    await JsonSerializer.SerializeAsync(context.Response.Body, ret);
+    await context.Response.Body.FlushAsync();
+}).WithName("GetDevices").WithOpenApi();
 
 app.Run();
 
