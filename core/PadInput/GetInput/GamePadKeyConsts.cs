@@ -16,39 +16,19 @@ namespace PadInput.GamePadInput
     }
 
     /// <summary>
-    /// キー入力押下を判別するキー別の定数を表します。
-    /// </summary>
-    [Flags]
-    public enum GamePadButtons
-    {
-        PAD_BUTTON_0 = 1,
-        PAD_BUTTON_1 = 2,
-        PAD_BUTTON_2 = 4,
-        PAD_BUTTON_3 = 8,
-        PAD_BUTTON_4 = 16,
-        PAD_BUTTON_5 = 32,
-        PAD_BUTTON_6 = 64,
-        PAD_BUTTON_7 = 128,
-        PAD_BUTTON_8 = 256,
-        PAD_BUTTON_9 = 512,
-        PAD_BUTTON_10 = 1024,
-        PAD_BUTTON_11 = 2048,
-    }
-
-    /// <summary>
     /// ゲームパッドの方向キーを表す列挙体。
     /// </summary>
     public enum GamePadPOVDirection
     {
-        Neutral,
-        Up,
-        Down,
-        Left,
-        Right,
-        UpRight,
-        UpLeft,
-        DownRight,
-        DownLeft,
+        DownLeft = 1,
+        Down = 2,
+        DownRight = 3,
+        Left = 4,
+        Neutral = 5,
+        Right = 6,
+        UpLeft = 7,
+        Up = 8,
+        UpRight = 9,
     }
 
 }

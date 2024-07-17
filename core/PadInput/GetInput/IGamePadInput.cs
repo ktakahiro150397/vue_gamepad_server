@@ -21,37 +21,6 @@ namespace PadInput.GamePadInput
         /// <returns></returns>
         public JOYINFOEX GetPadInput(int uJoyId, int dwFlags = JoyReturnFlagValues.JOY_RETURNALL);
 
-        // /// <summary>
-        // /// データ取得後、その入力内容を表す文字列を取得します。
-        // /// 文末に改行が含まれます。
-        // /// </summary>
-        // /// <returns></returns>
-        // public string GetInputInfo();
-
-        /// <summary>
-        /// 現在フレームの入力情報を表す文字列を返します。
-        /// </summary>
-        /// <returns></returns>
-        public string GetStructureInfoCurrentFrame();
-
-        /// <summary>
-        /// 前フレームの入力情報を表す文字列を返します。
-        /// </summary>
-        /// <returns></returns>
-        public string GetStructureInfoPreviousFrame();
-
-        // /// <summary>
-        // /// インスタンスに設定されている方向キー入力の方向を返します。
-        // /// </summary>
-        // /// <returns></returns>
-        // public IGamePadDirectionData GetPOVDirectionFromCurrentState();
-
-        // /// <summary>
-        // /// インスタンスに設定されているボタン入力のリストを返します。
-        // /// </summary>
-        // /// <returns></returns>
-        // public IList<IGamePadSingleButtonData> GetPushedButtonsFromCurrentState();
-
         /// <summary>
         /// 前フレームから入力に変化がある場合はTrue。
         /// </summary>

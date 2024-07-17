@@ -32,17 +32,37 @@ namespace PadInput.Win32Api
         [DllImport("winmm.dll")]
         public static extern int joyGetPosEx(int uJoyID, ref JOYINFOEX pji);
 
+        /// <summary>
+        /// Queries a joystick to determine its capabilities.
+        /// https://learn.microsoft.com/en-us/windows/win32/api/joystickapi/nf-joystickapi-joyGetDevCaps
+        /// </summary>
+        /// <param name="uJoyID"></param>
+        /// <param name="pjc"></param>
+        /// <param name="cbjc"></param>
+        /// <returns></returns>
+        [DllImport("winmm.dll", CharSet = CharSet.Auto)]
+        public static extern uint joyGetDevCaps(int uJoyID, ref JOYCAPS pjc, int cbjc);
 
-        //// hwnd  ... Handle to the window to receive the joystick messages.
-        //// uJoyID ... Identifier of the joystick to be captured. Valid values for uJoyID range from zero (JOYSTICKID1) to 15.
-        //// uPeriod ... Polling frequency, in milliseconds.
-        //// fChanged ... Change position flag. Specify TRUE for this parameter to send messages only when the position changes by a value greater than the joystick movement threshold. Otherwise, messages are sent at the polling frequency specified in uPeriod.
-        //[DllImport("winmm.dll")]
-        //public static extern int joySetCapture(IntPtr hwnd, int uJoyID, int uPeriod, int fChanged);
+        /// <summary>
+        /// The timeBeginPeriod function requests a minimum resolution for periodic timers.
+        /// https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod
+        /// </summary>
+        /// <param name="uuPeriod"></param>
+        /// <returns></returns>
+        [DllImport("Winmm.dll")]
+        public static extern uint timeBeginPeriod(uint uuPeriod);
+
+        /// <summary>
+        /// The timeEndPeriod function clears a previously set minimum timer resolution.
+        /// https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timeendperiod
+        /// </summary>
+        /// <param name="uuPeriod"></param>
+        /// <returns></returns>
+        [DllImport("Winmm.dll")]
+
+        public static extern uint timeEndPeriod(uint uuPeriod);
 
 
-        //[DllImport("winmm.dll")]
-        //public static extern int joyReleaseCapture(int uJoyID);
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -90,15 +110,6 @@ namespace PadInput.Win32Api
 
         public static bool operator ==(JOYINFOEX left, JOYINFOEX right)
         {
-            if (System.Object.ReferenceEquals(left, right))
-            {
-                //オペランドが同一の参照である場合はtrue。
-                return true;
-            }
-
-            //いずれか一方がnullならfalse。
-            if (left == null || right == null) { return false; }
-
             //すべての項目の値が一致する場合true。
             if (left.dwSize == right.dwSize &&
                 left.dwFlags == right.dwFlags &&
@@ -127,16 +138,16 @@ namespace PadInput.Win32Api
             return !(left == right);
         }
 
-        public override bool Equals(object obj)
+        public override readonly bool Equals(object? obj)
         {
             if (obj == null)
             {
                 return false;
             }
 
-            if (obj is JOYINFOEX)
+            if (obj is JOYINFOEX jOYINFOEX)
             {
-                return this == (JOYINFOEX)obj;
+                return this == jOYINFOEX;
             }
 
             return false;
@@ -150,6 +161,40 @@ namespace PadInput.Win32Api
 
 
     }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    public struct JOYCAPS
+    {
+        public ushort wMid;
+        public ushort wPid;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string szPname;
+        public uint wXmin;
+        public uint wXmax;
+        public uint wYmin;
+        public uint wYmax;
+        public uint wZmin;
+        public uint wZmax;
+        public uint wNumButtons;
+        public uint wPeriodMin;
+        public uint wPeriodMax;
+        public uint wRmin;
+        public uint wRmax;
+        public uint wUmin;
+        public uint wUmax;
+        public uint wVmin;
+        public uint wVmax;
+        public uint wCaps;
+        public uint wMaxAxes;
+        public uint wNumAxes;
+        public uint wMaxButtons;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string szRegKey;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] // MAX_JOYSTICKOEMVXDNAME is typically 260
+        public string szOEMVxD;
+    }
+
+
 
     /// <summary>
     /// JoyStickIDの定数郡。

@@ -1,8 +1,10 @@
 using System.Net.Http.Json;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Core.ItemService;
 using Core.PadInput;
+using Core.Response;
 using PadInput.GamePadInput;
 using PadInput.Win32Api;
 
@@ -14,9 +16,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<ItemService>();
-builder.Services.AddSingleton<TestPadInputService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -25,7 +36,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+var ServerTicks = builder.Configuration.GetValue<int>("ServerTick");
+
+// app.UseHttpsRedirection();
 
 var summaries = new[]
 {
@@ -47,53 +60,79 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapGet("/GetItemStreamTest", async (HttpContext context, TestPadInputService service, CancellationToken ct) =>
+app.MapGet("/GetInputStream", async (int joyId, HttpContext context, CancellationToken ct) =>
 {
-    context.Response.Headers.Append("Content-Type", "text/event-stream");
+    uint tickRate = (uint)(1000 / ServerTicks);
 
-    while (!ct.IsCancellationRequested)
-    {
-        // 送信するアイテムを待機
-        var item = await service.WaitForPadInput();
+    // 待機時間の精度を向上
+    NativeMethods.timeBeginPeriod(1);
 
-        // 送信データを書き込み
-        await context.Response.WriteAsync($"data: ");
-        await JsonSerializer.SerializeAsync(context.Response.Body, item);
-        await context.Response.WriteAsync($"\n\n");
-        await context.Response.Body.FlushAsync();
-
-        service.TaskReset();
-    }
-
-}).WithName("GetItemStreamTest").WithOpenApi();
-
-app.MapGet("/GetInputStream", async (int joyId, HttpContext context, TestPadInputService service, CancellationToken ct) =>
-{
     GamepadInput gamepadInput = new GamepadInput();
 
     context.Response.Headers.Append("Content-Type", "text/event-stream");
+
+    int inputFrameCount = 0;
     while (!ct.IsCancellationRequested)
     {
         // 60Hzでゲームパッドの入力チェックを行う
-        await Task.Delay(1000 / 60);
+        await Task.Delay((int)tickRate);
+        if (inputFrameCount < 99)
+        {
+            inputFrameCount++;
+        }
 
         gamepadInput.GetPadInput(joyId);
 
-        // TODO : dwPosは角度に100を乗じた数で、その角度で方向キー入力方向が検知できる
-        // 8 -> 0 / 6 -> 9000 / 2 -> 18000 / 4 -> 27000
-        // 十字キー前提の場合、それぞれの値と一体するかどうかを確認すればよさげ
-
         if (((IGamePadInput)gamepadInput).IsInputChangeFromPreviousFrame)
         {
+            // 送信データを現在の入力状態から作成
+            var testResponse = new GetInputStreamResponse();
+
+            testResponse.SetDirectionState(gamepadInput.joyInfo.dwPOV);
+            testResponse.SetButtonState(gamepadInput.joyInfo.dwButtons);
+            testResponse.time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            testResponse.previous_push_frame = inputFrameCount;
+            inputFrameCount = 0; // 入力フレームを0にリセット
+
             // 送信データを書き込み
             await context.Response.WriteAsync($"data: ");
-            await JsonSerializer.SerializeAsync(context.Response.Body, gamepadInput.joyInfo);
+            await JsonSerializer.SerializeAsync(context.Response.Body, testResponse);
             await context.Response.WriteAsync($"\n\n");
             await context.Response.Body.FlushAsync();
+
         }
 
+        // タイマー精度リセット
+        NativeMethods.timeEndPeriod(1);
     }
 }).WithName("GetInputStream").WithOpenApi();
+
+app.MapGet("/GetDevices", async (HttpContext context) =>
+{
+
+    var ret = new List<GetDevicesResponse>();
+
+    var maxDeviceCount = NativeMethods.joyGetNumDevs();
+    for (int i = 0; i < maxDeviceCount; i++)
+    {
+        JOYCAPS caps = new JOYCAPS();
+        var info = NativeMethods.joyGetDevCaps(i, ref caps, Marshal.SizeOf<JOYCAPS>());
+        if (info == JoyGetPosExReturnValue.JOYERR_NOERROR)
+        {
+            var device = new GetDevicesResponse
+            {
+                joyId = i,
+                device_name = caps.szPname,
+                device_id = $"{caps.wMid}-{caps.wPid}",
+                server_tick = ServerTicks
+            };
+            ret.Add(device);
+        }
+    }
+
+    await JsonSerializer.SerializeAsync(context.Response.Body, ret);
+    await context.Response.Body.FlushAsync();
+}).WithName("GetDevices").WithOpenApi();
 
 app.Run();
 
