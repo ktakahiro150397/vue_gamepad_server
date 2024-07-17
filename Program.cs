@@ -65,10 +65,16 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
     GamepadInput gamepadInput = new GamepadInput();
 
     context.Response.Headers.Append("Content-Type", "text/event-stream");
+
+    int inputFrameCount = 0;
     while (!ct.IsCancellationRequested)
     {
         // 60Hzでゲームパッドの入力チェックを行う
-        await Task.Delay(1000 / 60);
+        await Task.Delay(1000 / ServerTicks);
+        if (inputFrameCount < 100)
+        {
+            inputFrameCount++;
+        }
 
         gamepadInput.GetPadInput(joyId);
 
@@ -80,14 +86,16 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
             testResponse.SetDirectionState(gamepadInput.joyInfo.dwPOV);
             testResponse.SetButtonState(gamepadInput.joyInfo.dwButtons);
             testResponse.time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            testResponse.previous_push_frame = inputFrameCount;
+            inputFrameCount = 0; // 入力フレームを0にリセット
 
             // 送信データを書き込み
             await context.Response.WriteAsync($"data: ");
             await JsonSerializer.SerializeAsync(context.Response.Body, testResponse);
             await context.Response.WriteAsync($"\n\n");
             await context.Response.Body.FlushAsync();
-        }
 
+        }
     }
 }).WithName("GetInputStream").WithOpenApi();
 

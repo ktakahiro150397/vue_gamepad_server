@@ -8,6 +8,9 @@ namespace Core.Response
     /// </summary>
     class GetInputStreamResponse
     {
+        public int previous_push_frame { get; set; }
+
+
         public GamePadPOVDirection gamePadPOVDirection;
 
         public List<bool> buttonState;
@@ -30,6 +33,7 @@ namespace Core.Response
         }
 
         public long time_stamp { get; set; }
+
 
         public GetInputStreamResponse()
         {
