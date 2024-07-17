@@ -70,8 +70,8 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
     while (!ct.IsCancellationRequested)
     {
         // 60Hzでゲームパッドの入力チェックを行う
-        await Task.Delay(1000 / ServerTicks);
-        if (inputFrameCount < 100)
+        await Task.Delay(1000 / ServerTicks / 4);
+        if (inputFrameCount < 399)
         {
             inputFrameCount++;
         }
@@ -86,7 +86,7 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
             testResponse.SetDirectionState(gamepadInput.joyInfo.dwPOV);
             testResponse.SetButtonState(gamepadInput.joyInfo.dwButtons);
             testResponse.time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            testResponse.previous_push_frame = inputFrameCount;
+            testResponse.previous_push_frame = inputFrameCount / 4;
             inputFrameCount = 0; // 入力フレームを0にリセット
 
             // 送信データを書き込み
