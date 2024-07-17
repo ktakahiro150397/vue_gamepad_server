@@ -62,6 +62,11 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapGet("/GetInputStream", async (int joyId, HttpContext context, CancellationToken ct) =>
 {
+    uint tickRate = (uint)(1000 / ServerTicks);
+
+    // 待機時間の精度を向上
+    NativeMethods.timeBeginPeriod(1);
+
     GamepadInput gamepadInput = new GamepadInput();
 
     context.Response.Headers.Append("Content-Type", "text/event-stream");
@@ -70,8 +75,8 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
     while (!ct.IsCancellationRequested)
     {
         // 60Hzでゲームパッドの入力チェックを行う
-        await Task.Delay(1000 / ServerTicks / 4);
-        if (inputFrameCount < 399)
+        await Task.Delay((int)tickRate);
+        if (inputFrameCount < 99)
         {
             inputFrameCount++;
         }
@@ -86,7 +91,7 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
             testResponse.SetDirectionState(gamepadInput.joyInfo.dwPOV);
             testResponse.SetButtonState(gamepadInput.joyInfo.dwButtons);
             testResponse.time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            testResponse.previous_push_frame = inputFrameCount / 4;
+            testResponse.previous_push_frame = inputFrameCount;
             inputFrameCount = 0; // 入力フレームを0にリセット
 
             // 送信データを書き込み
@@ -96,6 +101,9 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
             await context.Response.Body.FlushAsync();
 
         }
+
+        // タイマー精度リセット
+        NativeMethods.timeEndPeriod(1);
     }
 }).WithName("GetInputStream").WithOpenApi();
 

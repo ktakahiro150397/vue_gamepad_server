@@ -43,6 +43,25 @@ namespace PadInput.Win32Api
         [DllImport("winmm.dll", CharSet = CharSet.Auto)]
         public static extern uint joyGetDevCaps(int uJoyID, ref JOYCAPS pjc, int cbjc);
 
+        /// <summary>
+        /// The timeBeginPeriod function requests a minimum resolution for periodic timers.
+        /// https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod
+        /// </summary>
+        /// <param name="uuPeriod"></param>
+        /// <returns></returns>
+        [DllImport("Winmm.dll")]
+        public static extern uint timeBeginPeriod(uint uuPeriod);
+
+        /// <summary>
+        /// The timeEndPeriod function clears a previously set minimum timer resolution.
+        /// https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timeendperiod
+        /// </summary>
+        /// <param name="uuPeriod"></param>
+        /// <returns></returns>
+        [DllImport("Winmm.dll")]
+
+        public static extern uint timeEndPeriod(uint uuPeriod);
+
 
     }
 
