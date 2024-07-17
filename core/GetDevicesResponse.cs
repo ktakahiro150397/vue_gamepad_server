@@ -15,6 +15,8 @@ namespace Core.Response
 
         public string device_name { get; set; }
 
+        public int server_tick { get; set; }
+
 
         public GetDevicesResponse()
         {

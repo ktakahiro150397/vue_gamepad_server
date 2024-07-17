@@ -36,6 +36,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+var ServerTicks = builder.Configuration.GetValue<int>("ServerTick");
+
 // app.UseHttpsRedirection();
 
 var summaries = new[]
@@ -105,7 +107,8 @@ app.MapGet("/GetDevices", async (HttpContext context) =>
             {
                 joyId = i,
                 device_name = caps.szPname,
-                device_id = $"{caps.wMid}-{caps.wPid}"
+                device_id = $"{caps.wMid}-{caps.wPid}",
+                server_tick = ServerTicks
             };
             ret.Add(device);
         }
