@@ -133,7 +133,10 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
         // タイマー精度リセット
         NativeMethods.timeEndPeriod(1);
     }
-}).WithName("GetInputStream").WithOpenApi();
+})
+.WithName("GetInputStream")
+.WithDescription("指定したJoyIdのゲームパッドの入力状態を取得します。データは入力が変更された際にJSON形式で送信されます。")
+.WithOpenApi();
 
 app.MapGet("/GetDevices", async (HttpContext context) =>
 {
