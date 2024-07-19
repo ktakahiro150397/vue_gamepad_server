@@ -40,24 +40,52 @@ var ServerTicks = builder.Configuration.GetValue<int>("ServerTick");
 
 // app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
+
+
+app.MapGet("/GetInputStreamTest", async (HttpContext context, CancellationToken ct, int? intervalTick = 20) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    uint tickRate = (uint)(1000 / ServerTicks);
+
+    context.Response.Headers.Append("Content-Type", "text/event-stream");
+
+    int inputFrameCount = 0;
+    while (!ct.IsCancellationRequested)
+    {
+        // 60Hzでゲームパッドの入力チェックを行う
+        await Task.Delay((int)tickRate);
+        if (inputFrameCount < 99)
+        {
+            inputFrameCount++;
+        }
+
+        if (inputFrameCount >= intervalTick)
+        {
+            // テスト用の送信データを作成
+            var testResponse = new GetInputStreamResponse();
+
+            testResponse.gamePadPOVDirection = (GamePadPOVDirection)(Random.Shared.Next(1, 10));
+
+            for (var i = 0; i < 16; i++)
+            {
+                testResponse.buttonState[i] = Random.Shared.Next(0, 2) == 1;
+            }
+
+            testResponse.time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            testResponse.previous_push_frame = inputFrameCount;
+            inputFrameCount = 0; // 入力フレームを0にリセット
+
+            // 送信データを書き込み
+            await context.Response.WriteAsync($"data: ");
+            await JsonSerializer.SerializeAsync(context.Response.Body, testResponse);
+            await context.Response.WriteAsync($"\n\n");
+            await context.Response.Body.FlushAsync();
+
+        }
+    }
 })
-.WithName("GetWeatherForecast")
+.WithName("GetInputStreamTest")
+.WithDescription("一定ティック数ごとにテスト用の入力レスポンスをランダムに返します。")
 .WithOpenApi();
 
 app.MapGet("/GetInputStream", async (int joyId, HttpContext context, CancellationToken ct) =>
