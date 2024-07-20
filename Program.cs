@@ -138,7 +138,7 @@ app.MapGet("/GetInputStream", async (int joyId, HttpContext context, Cancellatio
 .WithDescription("指定したJoyIdのゲームパッドの入力状態を取得します。データは入力が変更された際にJSON形式で送信されます。")
 .WithOpenApi();
 
-app.MapGet("/GetDevices", async (HttpContext context) =>
+app.MapGet("/GetDevices", async (HttpContext context, CancellationToken ct) =>
 {
 
     var ret = new List<GetDevicesResponse>();
